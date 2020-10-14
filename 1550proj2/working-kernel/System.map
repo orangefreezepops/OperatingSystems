@@ -20114,7 +20114,7 @@ c0641280 b current_max_latency
 c0641284 b nsproxy_cachep
 c0641288 b __key.10393
 c0641288 B cs1550_sem
-c06412e4 b semaphore_next_id
+c06412e4 b next_id
 c06412f0 B xtime
 c0641300 B wall_to_monotonic
 c0641308 b total_sleep_time
