@@ -1,0 +1,61 @@
+pseudo
+
+1 guide 1 visitor
+
+semaphores gsem vsem gwait vwait
+
+--GUIDE ARRIVES FIRST--
+guide:
+  arrives
+  signals "here" up(gsem);
+  if no visitors
+    waits for visitors to arrive down(vsem);
+  opens the museum
+  give visitor a tour
+  leaves
+
+visitor:
+  arrives
+  signals "here" up(vsem);
+  tours for 2 seconds
+  leaves
+//------------------------------------------------------------------------------
+
+--VISITOR ARRIVES FIRST--
+guide:
+  arrives
+  opens the museum
+  signals "here" up(gsem);
+  give visitors a tour
+  leaves
+
+visitor:
+  arrives
+  signals "here" up(vsem);
+  if no guides/not open
+    waits for guide to arrive down(gsem);
+  tours for 2 seconds
+  leaves
+//------------------------------------------------------------------------------
+
+--COMBINED--
+guide:
+  arrives
+  if no visitors
+    waits for visitors to arrive down(vsem);
+    open the museum
+      signals "here" up(gsem);
+  else
+    open the museum
+      signals "here" up(gsem);
+  wait for the visitor to finish the tour down(vwait);
+  leaves
+
+visitor:
+  arrives
+    signals "here" up(vsem);
+  if no guides/not open
+    waits for guide to arrive down(gsem);
+  tours for 2 seconds
+    say "ive finished" up(vwait);
+  leaves
