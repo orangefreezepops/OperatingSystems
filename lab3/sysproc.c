@@ -91,23 +91,27 @@ sys_uptime(void)
 }
 
 int
-sys_setpriority(int n){
-  struct proc *p;
-  int oldPriority;
-  p = myproc();
-
+sys_setpriority(void){
+  int oldPriority, n;
+  argint(0, &n);
+  //cprintf("setting the priority to: %d\n", n);
   //old priority
-  oldPriority = p->priority;
-
+  oldPriority = myproc()->priority;
+  //cprintf("the old priority: %d\n", oldPriority);
   //is new priority valid?
   if (n >= 0 && n <= 200){
     //set it
-    p->priority = n;
+    myproc()->priority = n;
+  } else {
+    //set to default
+    myproc()->priority = 50;
   }
 
   //is the new priority value greater than the old?
-  if (oldPriority < p->priority){
+  if (oldPriority < myproc()->priority){
     //if so yield
+    //cprintf("yielding because new priority is higher than old\n");
+    //cprintf("old: %d, new: %d\n", oldPriority, myproc()->priority);
     yield();
   }
 

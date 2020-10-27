@@ -314,6 +314,23 @@ wait(void)
   }
 }
 
+int
+findhighestpriority(void){
+  struct proc *p;
+  int lowest = 200;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state != RUNNABLE){
+      continue;
+    }
+    if (p->priority < lowest){
+      lowest = p->priority;
+      //cprintf("lowest: %d\n", lowest);
+    }
+  }
+
+  return lowest;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -327,8 +344,9 @@ scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
+  int highest;
   c->proc = 0;
-  int prevPriority;
+  //int priority;
 
   for(;;){
     // Enable interrupts on this processor.
@@ -336,34 +354,33 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    prevPriority = ptable.proc->priority;
+
+    //starting point for highest p
+    highest = findhighestpriority();
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-
-      //implement lab 3 here, choose proc with highest priority
-      if (prevPriority < p->priority){
+      if (p->priority != highest){
         continue;
-      } else {
-        c->proc = p;
-        switchuvm(p);
-        p->state = RUNNING;
       }
-
+      release(&ptable.lock);
+      //switch to chosen process
+      acquire(&ptable.lock);
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-      prevPriority = p->priority;
+
+      //find the next highest priority
+      highest = findhighestpriority();
     }
     release(&ptable.lock);
-
   }
 }
 

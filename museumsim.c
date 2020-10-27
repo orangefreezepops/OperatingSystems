@@ -114,18 +114,23 @@ void tourGuideArrives(int tg){
 void tourMuseum(int vID){
   int time = currentTime();
   fprintf(stderr, "Visitor %d tours the museum at time %d\n", vID, time);
-  up(museum_mutex);
+  up(museum_mutex);                     //protect shared variables
   museum->visitorsGivenTours++;         //increment number of visitors given tours
   museum->visitorsInMuseum++;           //increment the current number of visitors in the museum
-  down(museum_mutex);
+  down(museum_mutex);                   //stop protecting shared variables
   sleep(2);                             //tour for 2 seconds
-  up(vwait_sem);                        //signal visitor finished the tour
+  up(vwait_sem);                       //signal visitor finished the tour
 }
 
 void openMuseum(int tg){
   int time = currentTime();
   fprintf(stderr, "Tour guide %d opens the museum for tours at time %d\n", tg, time);
   museumOpen = true;                    //set museum open flag to true
+  /*if (tg != 0){
+    //if this isn't the first tour guide, meaning visitors have already been served
+    //allow the next batch of visitors to enter the museum and tour
+    up(gdelay_mutex); //signal that the next guide to open the museum arrived
+  }*/
   up(gmutex_sem);                       //signal that guide opened the musuem
 }
 
@@ -135,7 +140,13 @@ void tourGuideLeaves(int tg){
   up(museum_mutex);
   museum->guidesInMuseum--;             //decrement the number of guides in the museum
   down(museum_mutex);
-  up(gwait_sem);                        //signal that the guide has left
+
+  up(museum_mutex);
+  if(museum->guidesInMuseum == 0){      //if the guides all left
+    down(museum_mutex);
+    museumOpen = false;                 //close the museum so the next guide can open it
+  }
+  up(gwait_sem);                        //signal tour guide left
 }
 
 void visitorLeaves(int vID){
@@ -143,10 +154,14 @@ void visitorLeaves(int vID){
   fprintf(stderr, "Visitor %d leaves the museum at time %d\n", vID, time);
   up(museum_mutex);
   museum->visitorsInMuseum--;           //decrement the number of visitors in the museum
-  if (museum->visitorsInMuseum == 0) {
-    up(gwait_sem);                      //if this is the last visitor to leave
-  }
   down(museum_mutex);
+
+  up(museum_mutex);
+  //if the # of visitors reaches tickets - 10 (10 served), or there are no visitors inside
+  if (museum->visitorsInMuseum == museum->tickets - 10 || museum->visitorsInMuseum == 0) {
+    down(museum_mutex);
+    up(gwait_sem);                      //signal that the last visitor for this guide left
+  }
   up(vwait_sem);                        //signal visitor finished the tour
 }
 
@@ -160,18 +175,27 @@ void visitorArrivalProcess(){
     if (pid == 0){
       int visitorID = i;                              //visitor ID
       visitorArrives(visitorID);
-      up(museum_mutex);
-      if (museum->guidesOutside == 0){
-        down(gmutex_sem);                             //wait for them to arrive
+
+      up(museum_mutex);                               //protect shared var
+      if (museum->guidesOutside == 0){                //if the visitor arrives first
+        down(museum_mutex);                           //unprotect shared var
+        down(gmutex_sem);                             //wait for the guide to arrive
       }
+
+      up(museum_mutex);
+      //if this visitor can't fit in the museum
+      /*if (i > museum->guidesInMuseum*10 && i < museum->tickets){
+        down(gdelay_mutex);         //wait for the current visitors to finish
+                                    //and the delayed guides to arrive and open the museum
+      }*/
       down(museum_mutex);
-      //if there are no guides outside
-      // or there is room for another guide in the museum and there ar guides able to come in
+
       up(museum_mutex);
       if (i < museum->tickets){                       //if this visitor was able to receive a ticket
         tourMuseum(visitorID);                        //tour
       }
       down(museum_mutex);
+
       visitorLeaves(visitorID);                       //leave the museum
       exit(0);
     } else {
@@ -266,34 +290,49 @@ int main(int argc, char *argv[]){
       int pid = fork();
       if (pid == 0){
         int tgID = i;                             //tour guide ID
+
         tourGuideArrives(tgID);                   //tour guide arrives at museum
+
         up(museum_mutex);
-        if (museum->visitorsOutside == 0){        //if there are no Visitors outside
+        if (museum->visitorsOutside == 0 && !museumOpen){        //if there are no Visitors outside
           down(vmutex_sem);                       //wait for visitors to arrive
           openMuseum(tgID);                       //open the museum
+          museum->guidesInMuseum++;               //increment number of guides in museum
         } else if (!museumOpen){                  //if there are visitors waiting at the museum and the museum is not open
           openMuseum(tgID);                       //open the museum
+          museum->guidesInMuseum++;
+          //if the museum is already open and there are less than 2 guides
+        } else if (museumOpen && museum->guidesInMuseum < 2){
+          museum->guidesInMuseum++;               //increment number of guides in museum
+        } else if (museumOpen && museum->guidesInMuseum == 2) {
+          //wait til a guides leave
+          down(gwait_sem);
+          openMuseum(tgID);                       //open the museum
+          museum->guidesInMuseum++;               //increment number of guides in museum
         }
-        museum->guidesInMuseum++;                 //increment number of guides in museum
+        down(museum_mutex);
+
+        up(museum_mutex);
         if (museum->visitorsInMuseum >= 10){       //if there are more than 10 visitors
+          down(museum_mutex);
           for(j = 0; j < 10; j++){
             down(vwait_sem);                      //wait for the visitors this tour guide can handle to finish
-            //fprintf(stderr, "wait for 10 visitors %d\n", j);
           }
         } else {                                  //else if there are less than the max visitors for this guide
           for(k = 0; k < museum->visitorsInMuseum; k++){
+            down(museum_mutex);
             down(vwait_sem);                      //wait for all of the visitors to finish
-            //fprintf(stderr, "wait for all visitors %d\n", k);
           }
         }
-        //fprintf(stderr, "visitors given tours %d, min(visCount, 10) %d\n", museum->visitorsGivenTours, MIN(visitorCnt, 10));
+
+        up(museum_mutex);
         if (museum->visitorsGivenTours != MIN(visitorCnt, 10)){
-          down(gwait_sem);                        //wait for the other tour guides visitors to finish
+          down(museum_mutex);
+          down(gwait_sem);                        //wait for the signal that the last visitor finished
         }
-        down(museum_mutex);
+
         tourGuideLeaves(tgID);                    //leave togeter
         exit(0);                                  //exit process
-
       } else {
         int value = rand() % 100 + 1;
         if (value > tourGuideFollowingProbability){
@@ -301,14 +340,11 @@ int main(int argc, char *argv[]){
         }
       }
     }
-    //fprintf(stderr, "being held up here?\n");
     for (i=0; i < tourGuideCnt; i ++){
       wait(NULL);                             //wait for each of the guides
-      //fprintf(stderr, "wait for process %d\n", i);
     }
   }
   wait(NULL);
-  //fprintf(stderr, "End of Main\n");
   //close all the semaphores
   close(gmutex_sem);
   close(vmutex_sem);

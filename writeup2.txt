@@ -1,0 +1,19 @@
+  My implementation is not fair, I had a great deal of trouble only allowing the
+guides to serve 10 visitors. If you read through my outputs, you'll notice
+that test cases with > 1 guides, my first tour guide will usually serve its ten allotted
+visitors and allow them to leave, but the rest of the visitors don't wait for
+their respective guides to arrive before they tour. They wait for their turn to
+enter the museum based on the 2 second tour time of the previous visitors and enter
+immediately following that.
+
+  My code is however deadlock and starvation free because of the protection of
+shared data with mutex semaphores and the barrier synchronization of certain
+critical sections (even if those critical sections don't behave correctly),
+every time I needed to wait on a visitor or guide process I signaled or waited
+on its inverse semaphore (i.e. down(visitor_mutex) while waiting for visitors to
+arrive before the guide could open the museum and down(guide_mutex) if I had to
+wait for a guide to arrive before the visitor could tour). this allowed the
+the guides and visitors to synchronize at various points (e.g. waiting for all
+visitors in the museum to leave before the tour guide could.) I have marked up
+my code with comments so the grader can follow my though process along the way
+to make this clearer.
