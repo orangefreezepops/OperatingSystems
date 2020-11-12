@@ -40,7 +40,10 @@ visitor:
 
 --COMBINED--
 guide:
-  arrives
+  if more than 1 guide
+    let 2 arrive
+  else
+    arrive
   if no visitors
     waits for visitors to arrive down(vsem);
     open the museum
@@ -48,14 +51,17 @@ guide:
   else
     open the museum
       signals "here" up(gsem);
-  wait for the visitor to finish the tour down(vwait);
-  leaves
+  wait for the allotted visitors (MIN(visitorCnt, 10*numguides)) to finish the tour down(vwait);
+  if the last the visitor has left
+    wait for the other guides visitors to leave too down(gwait)
+  leave
 
 visitor:
   arrives
     signals "here" up(vsem);
   if no guides/not open
     waits for guide to arrive down(gsem);
-  tours for 2 seconds
+  if the museum is not at capacity and there are tickets available
+    tours for 2 seconds
     say "ive finished" up(vwait);
   leaves
