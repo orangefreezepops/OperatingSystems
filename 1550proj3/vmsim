@@ -2,8 +2,8 @@
 import sys
 import math
 
-pagetable0 = set()  #page table object for process 0
-pagetable1 = set()  #page table object for process 1
+pagetable0 = []     #page table object for process 0
+pagetable1 = []     #page table object for process 1
 queue0 = []         #queue for process 0 pages
 queue1 = []         #queue for process 1 pages
 pagesize = 0
@@ -17,6 +17,7 @@ diskwrites = 0
 pagefaults = 0
 memaccesses = 0
 tracefile = ''
+index = 0
 
 def setup():
     #global varibales I'll need to use
@@ -81,14 +82,18 @@ def second_chance():
             #split by spaces, each line should have 3 pieces
             access = line.split(' ')
             inst = access[0]                         #instruction type
-            addr = (int(access[1], 0)) >> offset     #address shifted by offest
+            addr = (int(access[1], 0)) >> offset     #address shifted by offest bc we just care about page num
             proc = int(access[2])                    #process
             
+            #bin_pn = bin(addr)
+            #bin_addr = bin(addr << 12)
+            #full_addr = addr << offset
             #sanity check
             #print('type: ', type, ' addr: ', addr, ' proc: ', proc)
             #print('addr ', addr)
-            #print('address ', address)
-            #print(len(addr))
+            #print('full addr ', full_addr)
+            #print('binary addr ', bin_addr)
+            #print('binary page num ', bin_pn)
 
             #create page table entry for each line
             new_entry = Entry(addr, 0, 0)
@@ -106,20 +111,25 @@ def proc_zero(new_entry, inst):
     global diskwrites
     global numframes0
     global pagetable0
+    global queue0
+    global index
 
     #check the length of the page table
     #if the number of entries < num frames for proc0
     if len(pagetable0) < numframes0:
-        #is the address for the entry in the page table
+        #is the address for the entry in the address queue
         if new_entry.get_address() not in queue0:
-            #if its not in the pt add to both the queue and the pagetable
-            pagetable0.add(new_entry)
+            #if its not in the pt add to pagetable
+            #if a store set dirty bit
+            if inst == 's':
+                new_entry.set_dirtybit(1)
+            pagetable0.append(new_entry)
             queue0.append(new_entry.get_address())
             #didnt exist so page fault ++
             pagefaults += 1
         else:
-            #loop through queue
-            #is the address for new entry == to any of the addresses in the queue
+            #loop through page table
+            #is the address for new entry == to any of the addresses in the pt
             for e in pagetable0:
                 if e.get_address() == new_entry.get_address():
                     #if so set the ref bit to 1 because its been referenced
@@ -131,26 +141,34 @@ def proc_zero(new_entry, inst):
 
     #if the number of entries >= the page frames for proc0
     else:
-        #check that the address isnt in the page table
+        #check that the address isnt in the page queue
         if new_entry.get_address() not in queue0:
             #if not we need to evict something
-            #loop through pagetable
-            for e in pagetable0:
+            #loop through local pagetable list obj
+            for e in list(pagetable0):
                 if (e.get_refbit() == 1):
                     #give him another shot
-                    e.set_refbit(0)
-                else:
-                    #we found an entry with ref bit == 0 meaning 
-                    #it already had its second chance
-                    #check if its dirty
-                    if e.get_dirtybit() == 1:
-                        #if it is you will have to write to disk
-                        diskwrites += 1
-                    #remove that sucka from bofa deez
+                    #make a new entry with an updated ref bit
+                    update = Entry(e.get_address(), 0, e.get_dirtybit())
+                    #remove the entry from its current position in page table 
+                    #and add the updated entry to the end of the list
                     pagetable0.remove(e)
-                    queue0.remove(e.get_address())
-                    #done, evicted
+                    pagetable0.append(update)
+                #found a 0
+                else:
                     break
+            
+            #the first position will be the next evictable page
+            #FIFO style 
+            if pagetable0[0].get_dirtybit() == 1:
+                #if it is you will have to write to disk
+                diskwrites += 1
+            #remove that sucka
+            queue0.remove(pagetable0[0].get_address())
+            pagetable0.remove(pagetable0[0])
+            #done, evicted
+
+            #get ready to add the new entry
         
             #if its a store instruction
             if inst == 's':
@@ -158,18 +176,18 @@ def proc_zero(new_entry, inst):
                 new_entry.set_dirtybit(1)
             
             #add the new entry now
-            pagetable0.add(new_entry)
+            pagetable0.append(new_entry)
             queue0.append(new_entry.get_address())
             #didnt exist so page fault ++
             pagefaults += 1
         
-        #if the adress is in the page table
+        #if the address is in the page table
         else:   
-            #loop through queue
-            #is the address for new entry == to any of the addresses in the queue
+            #loop through page table
             for e in pagetable0:
+                #find where new entry == current pt entry addresses 
                 if e.get_address() == new_entry.get_address():
-                    #if so set the ref bit to 1 because its been referenced
+                    #if found, set the ref bit to 1 because its been referenced
                     e.set_refbit(1)
                     #check if the instruction is a store
                     if inst == 's':
@@ -186,57 +204,70 @@ def proc_one(new_entry, inst):
     global diskwrites
     global numframes1
     global pagetable1
+    global queue1
+    global index
 
     #check the length of the page table
-    #if the number of entries < num for proc1
+    #if the number of entries < num frames for proc0
     if len(pagetable1) < numframes1:
-        #is the address for the entry in the page table queue
+        #is the address for the entry in the address queue
         if new_entry.get_address() not in queue1:
-            #if its not in the pt add to both the queue and the pagetable
-            pagetable1.add(new_entry)
+            #if its not in the pt add to pagetable
+            #if a store set dirty bit
+            if inst == 's':
+                new_entry.set_dirtybit(1)
+            pagetable1.append(new_entry)
             queue1.append(new_entry.get_address())
             #didnt exist so page fault ++
             pagefaults += 1
         else:
-            #loop through queue
-            #is the address for new entry == to any of the addresses in the queue
+            #loop through page table
+            #is the address for new entry == to any of the addresses in the pt
             for e in pagetable1:
                 if e.get_address() == new_entry.get_address():
                     #if so set the ref bit to 1 because its been referenced
                     e.set_refbit(1)
                     #check if the instruction is a store
-                    if inst == 's':
+                    if (inst == 's'):
                         #if it is set the dirty bit
                         e.set_dirtybit(1)
 
     #if the number of entries >= the page frames for proc1
     else:
-        #check that the address isnt in the page table
         if new_entry.get_address() not in queue1:
             #if not we need to evict something
-            #loop through pagetable
-            for e in pagetable1:
-                if e.get_refbit() == 1:
+            #loop through local pagetable list obj
+            for e in list(pagetable1):
+                if (e.get_refbit() == 1):
                     #give him another shot
-                    e.set_refbit(0)
-                else:
-                    #check if its dirty
-                    if e.get_dirtybit() == 1:
-                        #if it is you will have to write to disk
-                        diskwrites += 1
-                    #remove that sucka from bofa deez
+                    #make a new entry with an updated ref bit
+                    update = Entry(e.get_address(), 0, e.get_dirtybit())
+                    #remove the entry from its current position in page table 
+                    #and add the updated entry to the end of the list
                     pagetable1.remove(e)
-                    queue1.remove(e.get_address())
-                    #done, evicted
+                    pagetable1.append(update)
+                #found a 0
+                else:
                     break
-        
+            
+            #the first position will be the next evictable page
+            #FIFO style 
+            if pagetable1[0].get_dirtybit() == 1:
+                #if it is you will have to write to disk
+                diskwrites += 1
+            #remove that sucka
+            queue1.remove(pagetable1[0].get_address())
+            pagetable1.remove(pagetable1[0])
+            #done, evicted
+
+            #get ready to add the new entry        
             #if its a store instruction
-            if (inst == 's'):
+            if inst == 's':
                 #set the dirty bit
                 new_entry.set_dirtybit(1)
             
             #add the new entry now
-            pagetable1.add(new_entry)
+            pagetable1.append(new_entry)
             queue1.append(new_entry.get_address())
             #didnt exist so page fault ++
             pagefaults += 1
