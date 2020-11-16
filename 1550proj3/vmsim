@@ -89,8 +89,8 @@ def second_chance():
             #print('addr ', addr)
             #print('address ', address)
             #print(len(addr))
+
             #create page table entry for each line
-            
             new_entry = Entry(addr, 0, 0)
             if proc == 0:
                 memaccesses += 1
