@@ -1,8 +1,0 @@
-The positives behind utilizing a FIFO queue as compared to a priority queue within a semaphore
-is simplicity, and avoiding process starvation. FIFO queues are much easier to implement
-and because of the simplicity of first-come first-served design, all processes will have an
-equal chance to run. Whereas priority queues assign priority values to processes which can lead to
-starvation, meaning smaller, less important jobs may never get the chance to run. And the
-solution to that problem - aging, adds more complexity to a programmers implementation.
-FIFO queueing does however have it's drawbacks, namely when larger processes get placed
-in front of smaller ones and make waiting/completion time of the collection worse.

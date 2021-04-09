@@ -1,0 +1,272 @@
+--------------------------LRU----------------------------
+16 pages 4KB size
+3:5
+Algorithm: LRU
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 72396
+Total writes to disk: 50698
+ 
+5:3
+Algorithm: LRU
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 57379
+Total writes to disk: 45639
+ 
+7:9
+Algorithm: LRU
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 65738
+Total writes to disk: 48093
+ 
+9:7
+Algorithm: LRU
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 59692
+Total writes to disk: 46177
+ 
+1024 pages 4KB size
+ 
+3:5
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40168
+Total writes to disk: 39214
+ 
+5:3
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40168
+Total writes to disk: 39470
+ 
+7:9
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40168
+Total writes to disk: 39278
+ 
+9:7
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40168
+Total writes to disk: 39406
+ 
+16 pages 4MB size
+ 
+3:5
+Algorithm: LRU
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 211
+Total writes to disk: 109
+ 
+5:3
+Algorithm: LRU
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 135
+Total writes to disk: 75
+ 
+7:9
+Algorithm: LRU
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 175
+Total writes to disk: 94
+ 
+9:7
+Algorithm: LRU
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 147
+Total writes to disk: 81
+ 
+1024 pages 4MB size
+ 
+3:5
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+5:3
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+7:9
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+9:7
+Algorithm: LRU
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+--------------------------OPT----------------------------
+16 pages 4KB size
+ 
+3:5
+Algorithm: OPT
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 60119
+Total writes to disk: 46037
+ 
+5:3
+Algorithm: OPT
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 48728
+Total writes to disk: 42916
+ 
+7:9
+Algorithm: OPT
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 56201
+Total writes to disk: 45209
+ 
+9:7
+Algorithm: OPT
+Number of frames: 16
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 50699
+Total writes to disk: 43465
+ 
+1024 pages 4KB size
+ 
+3:5
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40150
+Total writes to disk: 39201
+ 
+5:3
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40150
+Total writes to disk: 39457
+ 
+7:9
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40150
+Total writes to disk: 39265
+ 
+9:7
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4 KB
+Total memory accesses: 996727
+Total page faults: 40150
+Total writes to disk: 39393
+ 
+16 pages 4MB size
+ 
+3:5
+Algorithm: OPT
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 163
+Total writes to disk: 84
+ 
+5:3
+Algorithm: OPT
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 109
+Total writes to disk: 66
+ 
+7:9
+Algorithm: OPT
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 139
+Total writes to disk: 76
+ 
+9:7
+Algorithm: OPT
+Number of frames: 16
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 115
+Total writes to disk: 65
+ 
+1024 pages 4MB size
+ 
+3:5
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+5:3
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+7:9
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0
+ 
+9:7
+Algorithm: OPT
+Number of frames: 1024
+Page size: 4096 KB
+Total memory accesses: 996727
+Total page faults: 94
+Total writes to disk: 0

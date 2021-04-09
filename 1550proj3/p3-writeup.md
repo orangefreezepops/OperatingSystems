@@ -1,0 +1,10 @@
+Keegan Fouse
+cs1550 - Project 3 Page Replacement Algorithms
+
+I ran both LRU and OPT on configurations with 16 page frames and 1024 page frames, page sizes 4KB and 4MB, memory splits 1:1, 1:3, 3:1, 3:5, 5:3, 7:9 and 9:7 on the given 1.trace file.
+
+Overall the traces behaved as expected, with the higher the number of page frames, the lower number of page faults and disk writes. Page faults tended to remain steady for the 1024 page configurations and differed only by 5 page faults for LRU (configuration 1024 frames, 4KB pages and 1:3 frame split). With that same configuration OPT didnt move, its 40150 pagefaults stayed consistent with the other configurations, and it >39000 diskwrites were on par with them as well, they all floated around the 39000 mark. And for both LRU and OPT on configuration 1024 frames with 4096 pagesize ever memory split gave the same answer (94 page faults, 0 disk writes). In general with the 16 pageframe runs and 4KB pages, faults and disk writes varied more sometiems in the thousands.
+
+The writes to disk in the overall trend of the runs had more variance, and I believe that was a product of the uneven dispersion of instructions for certain processes along with the memory split configurations. (e.g. if process 0 receives the 1 in a 1:3 split and has say 25% more store instructions than process 1, process 0 is storing more addresses and writing more frequently after page evictions, compound that with the fact that it received a smaller share of the frames, and now your disk writes will spike.)
+
+I am not including pictures in this writeup however I am adding a pdf with the charts and data cells for all the runs so you can view them graphically. also you can see my output file metrics.txt which was the printout of my writeup.sh shell file which mitigated the tedious testing process, you'll notice I only started at 3:5 memory splits, thats because I had typed all of the other runs in the command line individually before realizing there was a better way.
