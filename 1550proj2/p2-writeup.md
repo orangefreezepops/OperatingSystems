@@ -1,3 +1,3 @@
-Keegan Fouse
-
 Project 2 Writeup
+
+I don't entirely believe that my code is deadlock and starvation free. I used protection of shared data with shared.ticket_mutex for the critical sections and various condition variables for synchronization when guieds arrive, allow visitors in and can leave together and when the visitors arrive, tour and all finish touring, every time I needed to wait on a visitor or guide process I broadcasted after the condition I thought was met in the corresponding guide/visitor process (i.e. wait(cv_visitors) while waiting for visitors to arrive before the guide could open the museum and wait(cv_guide) if I had to wait for a guide to arrive before the visitor could tour). this allowed the the guides and visitors to synchronize at various points (e.g. waiting for all visitors in the museum to leave before the tour guide could.) My latest submission worked well but that also might be a fluke because I'm not getting clean runs locally all the time. I have marked up my code with comments so the grader can follow my thought process along the way to make this clearer.
