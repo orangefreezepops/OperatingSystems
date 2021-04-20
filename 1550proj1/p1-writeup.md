@@ -1,4 +1,4 @@
-`Keegan Fouse - Project 1`
+
 
 The positives behind utilizing a FIFO queue as compared to a hash table within a semaphore is simplicity. FIFO queues are much easier to implement and traverse/seek indexes, as compared to a hash table which needs to store key-value pairs and probably implement some other lookup-table data structure to find and reference the processes needed. 
 
