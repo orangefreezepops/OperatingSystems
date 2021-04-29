@@ -1,0 +1,5 @@
+/cs1550
+/.disk
+*.d
+/testmount
+.DS_Store
