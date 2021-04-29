@@ -43,7 +43,7 @@ def setup():
     if pagesizestr == '8':
         pagesize = 8192
     if pagesizestr == '4096':
-        pagesize = 32000000
+        pagesize = 4194304
     
     #calculate bits for the offset and page number
     offset = int(math.log2(pagesize))    #will be the least significant bits
