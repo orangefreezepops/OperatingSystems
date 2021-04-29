@@ -4,3 +4,5 @@ The positives behind utilizing a FIFO queue as compared to a hash table within a
 
 Because of the simplicity of first-come first-served design, all processes will have an equal chance to run. Whereas hash tables might need to assign priority values to processes in order to know which process to look for when Up() and Down() are called which could possibly lead to starvation, meaning smaller, less important jobs may never get the chance to run. A problem also arises where each of the buckets in the hash table would need their own locks to protect the objects inside. This isn't a huge deal until of course the hash tables inevitably need to be re-hashed or double hashed after filling etc. Overall hash tables add more complexity to the programmers implementation. FIFO queueing does the job with few headaches at the risk of is naivety. It's drawbacks are namely when larger processes get placed in front of smaller ones making waiting/completion time of the collection worse.
 
+
+GRADE RECEIVED - 99.5/100
